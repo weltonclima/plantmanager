@@ -1,5 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/core';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -9,7 +10,8 @@ import {
   TextInput,
   View,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  Alert
 } from 'react-native';
 import colors from '../../styles/colors';
 import fonts from '../../styles/fonts';
@@ -20,21 +22,18 @@ export function UserIdentification() {
   const [name, setName] = useState<string>();
   const navigation = useNavigation();
 
-  function handleSubmit() {
+  async function handleSubmit() {
+    if (!name)
+      return Alert.alert('Me diz como chamar você 😢');
+
+    await AsyncStorage.setItem('@plantmanager:user', name);
 
     navigation.navigate('Confirmation');
   }
 
-  useEffect(() => {
-    console.log(name);
-  }, [name])
-
   function handleinputBlur() {
     setIsFocused(false);
     setIsFilled(!!name);
-  }
-  function handleinputFocus() {
-    setIsFocused(true);
   }
   function handleinputChange(value: string) {
     setIsFilled(!!value);
@@ -65,7 +64,7 @@ export function UserIdentification() {
                 ]}
                 placeholder="Digite um nome"
                 onBlur={handleinputBlur}
-                onFocus={handleinputFocus}
+                onFocus={event => setIsFocused(true)}
                 onChangeText={handleinputChange}
               />
               <View style={styles.footer}>

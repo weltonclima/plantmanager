@@ -17,10 +17,6 @@ import wateringImg from '../assets/watering.png';
 
 export function Welcome() {
   const navigation = useNavigation();
-  function handleStart() {
-    
-    navigation.navigate('UserIdentification');
-  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -40,7 +36,7 @@ export function Welcome() {
         <TouchableOpacity
           style={styles.button}
           activeOpacity={0.7}
-          onPress={handleStart}
+          onPress={event => navigation.navigate('UserIdentification')}
         >
           <Feather
             name="chevron-right"
@@ -56,7 +52,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  wrapper:{
+  wrapper: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'space-around',
