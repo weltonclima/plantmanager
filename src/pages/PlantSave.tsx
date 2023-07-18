@@ -1,32 +1,23 @@
 import React, { useState } from 'react';
 import { Alert, Image, Platform, StyleSheet, Text, View } from 'react-native';
+import { isBefore } from 'date-fns/esm';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { format } from 'date-fns';
 import { SvgFromUri } from 'react-native-svg';
 import { getBottomSpace } from 'react-native-iphone-x-helper';
-import { useRoute } from '@react-navigation/core';
+import { useNavigation, useRoute } from '@react-navigation/core';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { loadPlant, PlantProps, savePlant } from '../libs/storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import { Button } from '../components/Button';
 
 import waterDropImg from '../assets/waterdrop.png';
 import colors from '../../styles/colors';
 import fonts from '../../styles/fonts';
-import { isBefore } from 'date-fns/esm';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { format } from 'date-fns';
 
-
-type Params = {
-  plant: {
-    id: string;
-    name: string;
-    about: string;
-    water_tips: string;
-    photo: string;
-    environments: [string];
-    frequency: {
-      times: number,
-      repeat_every: string;
-    }
-  }
+interface Params {
+  plant: PlantProps;
 }
 
 export function PlantSave() {
@@ -34,22 +25,40 @@ export function PlantSave() {
   const [showDatePicker, setShowDatePicker] = useState(Platform.OS == 'ios');
   const route = useRoute();
   const { plant } = route.params as Params;
+  const navigation = useNavigation();
 
   function handleChangeTime(event: Event, datetime: Date | undefined) {
     if (Platform.OS == 'android') {
-      console.log(1, showDatePicker)
       setShowDatePicker(oldState => !oldState);
     }
 
     if (datetime && isBefore(datetime, new Date())) {
-      console.log(2, datetime && isBefore(datetime, new Date()))
       setSelectedDateTime(new Date());
       return Alert.alert('Escolha uma hora no futuro! ⏰')
     }
 
     if (datetime) {
-      console.log(3, datetime)
       setSelectedDateTime(datetime);
+    }
+  }
+
+  async function handleSave() {
+    try {
+      await savePlant({
+        ...plant,
+        dateTimeNotification: selectedDateTime
+      });
+      
+      navigation.navigate('Confirmation', {
+        title: 'Tudo certo',
+        subtitle: 'Fique tranquilo que sempre vamos lembrar você de cuidar da sua plantinha com bastante amor.',
+        buttonTitle: 'Muito obrigado :D',
+        icon: 'hug',
+        nextScreen: 'MyPlants',
+      });
+
+    } catch {
+      Alert.alert('Não foi possível salvar. 😢');
     }
   }
 
@@ -103,7 +112,7 @@ export function PlantSave() {
           )}
         <Button
           title="Cadastrar Planta"
-          onPress={() => { }}
+          onPress={handleSave}
         />
       </View>
     </View>

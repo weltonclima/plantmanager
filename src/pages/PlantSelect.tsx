@@ -9,6 +9,7 @@ import colors from '../../styles/colors';
 import fonts from '../../styles/fonts';
 import { Load } from '../components/Load';
 import { useNavigation } from '@react-navigation/core';
+import { PlantProps } from '../libs/storage';
 
 
 type Enviroment = {
@@ -16,23 +17,10 @@ type Enviroment = {
   key: string;
 }
 
-type Plants = {
-  id: string;
-  name: string;
-  about: string;
-  water_tips: string;
-  photo: string;
-  environments: [string];
-  frequency: {
-    times: number,
-    repeat_every: string;
-  }
-}
-
 export function PlantSelect() {
   const [environment, setEnvironment] = useState<Enviroment[]>([]);
-  const [plants, setplants] = useState<Plants[]>([]);
-  const [filteredPlants, setFilteredPlants] = useState<Plants[]>([]);
+  const [plants, setplants] = useState<PlantProps[]>([]);
+  const [filteredPlants, setFilteredPlants] = useState<PlantProps[]>([]);
   const [environmentActive, setEnvironmentActive] = useState('all');
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
@@ -41,7 +29,7 @@ export function PlantSelect() {
   const [page, setPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  function handlePlantSelect(plant: Plants){
+  function handlePlantSelect(plant: PlantProps){
     navigation.navigate('PlantSave', {plant})
   }
 
@@ -84,7 +72,7 @@ export function PlantSelect() {
 
   async function fetchPlants() {
     const { data } = await api
-      .get<Plants[]>(`plants?_sort=name&_order=asc&_page=${page}&_limit=8`)
+      .get<PlantProps[]>(`plants?_sort=name&_order=asc&_page=${page}&_limit=8`)
 
     if (!data) {
       setLoading(true);
